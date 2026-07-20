@@ -67,6 +67,8 @@ export default function IssueForm() {
     formState: { errors },
   } = useForm<IssueFormValues>({
     resolver: zodResolver(issueFormSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onBlur',
     defaultValues: {
       recipient: '',
       studentName: '',
