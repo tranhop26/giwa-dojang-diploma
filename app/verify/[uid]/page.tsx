@@ -9,6 +9,7 @@ import { Award, ShieldAlert, ArrowLeft, ExternalLink, Calendar, User, UserCheck 
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CopyButton from '@/components/CopyButton';
+import VerifyQR from '@/components/VerifyQR';
 import { getPublicClient, decodeDiplomaData } from '@/lib/eas';
 import { EAS_ADDRESS, SCHEMA_UID, EXPLORER_URL } from '@/lib/constants';
 import { cn } from '@/lib/utils';
@@ -170,9 +171,10 @@ export default async function VerifyPage({ params }: VerifyPageProps) {
         {/* Background cosmic glow */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
 
-        <div className="w-full max-w-2xl relative z-10 space-y-6">
-          {/* Status Badge */}
-          <div className="flex justify-center">
+        <div className="grid lg:grid-cols-[1fr_280px] gap-6 max-w-5xl w-full relative z-10 items-start">
+          <div className="space-y-6 w-full">
+            {/* Status Badge */}
+            <div className="flex justify-center">
             {status === 'valid' && (
               <Badge className="bg-emerald-500 hover:bg-emerald-600 text-black px-4 py-1.5 text-xs font-semibold tracking-wider gap-1.5 shadow-lg shadow-emerald-500/10">
                 <UserCheck className="h-3.5 w-3.5" /> ✓ VERIFIED ON GIWA CHAIN
@@ -288,6 +290,20 @@ export default async function VerifyPage({ params }: VerifyPageProps) {
             </CardFooter>
           </Card>
         </div>
+
+        {/* Sidebar / QR Code column */}
+        <div className="space-y-6 w-full lg:sticky lg:top-24">
+          <Card className="border-border/40 bg-card/60 backdrop-blur-md shadow-2xl p-6 flex flex-col items-center text-center space-y-4">
+            <div className="space-y-1.5">
+              <h4 className="font-display font-bold text-sm tracking-wide text-foreground">Offline Verification</h4>
+              <p className="text-[11px] text-muted-foreground leading-relaxed max-w-[200px]">
+                Scan to verify offline (print on paper CV)
+              </p>
+            </div>
+            <VerifyQR />
+          </Card>
+        </div>
+      </div>
       </main>
 
       <Footer />
