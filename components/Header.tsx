@@ -10,23 +10,27 @@ import { formatEther } from 'viem';
 import { Menu, X, Award } from 'lucide-react';
 
 function WalletBalanceDisplay({ address, chainId }: { address?: `0x${string}`; chainId?: number }) {
+  const targetChainId = chainId || 91342;
   const { data: balanceData, isLoading } = useBalance({
     address,
-    chainId,
+    chainId: targetChainId,
   });
 
-  if (isLoading) {
+  if (isLoading || !balanceData) {
     return <span className="text-xs text-muted-foreground font-mono">...</span>;
   }
 
-  if (!balanceData) {
+  if (!balanceData?.value && balanceData?.value !== 0n) {
     return <span className="text-xs text-muted-foreground font-mono">0.0000 ETH</span>;
   }
 
-  const num = Number(formatEther(balanceData.value));
-  const formatted = isNaN(num) ? '0.0000' : num.toFixed(4);
-
-  return <span className="text-xs text-violet-200 font-mono font-medium">{formatted} ETH</span>;
+  try {
+    const formatted = Number(formatEther(balanceData.value)).toFixed(4);
+    const displayVal = isNaN(Number(formatted)) ? '0.0000' : formatted;
+    return <span className="text-xs text-violet-200 font-mono font-medium">{displayVal} ETH</span>;
+  } catch {
+    return <span className="text-xs text-muted-foreground font-mono">0.0000 ETH</span>;
+  }
 }
 
 export default function Header() {

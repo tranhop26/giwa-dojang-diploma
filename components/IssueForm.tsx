@@ -233,6 +233,7 @@ export default function IssueForm() {
             <Input
               id="recipient"
               placeholder="0x..."
+              defaultValue=""
               {...register('recipient')}
               className={errors.recipient ? 'border-destructive ring-destructive/20' : ''}
               disabled={isSubmitting}
