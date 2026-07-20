@@ -17,7 +17,7 @@ export async function getAttestationsByRecipient(
 
   try {
     const currentBlock = await publicClient.getBlockNumber();
-    const fromBlock = currentBlock - 95000n > 0n ? currentBlock - 95000n : 0n;
+    const fromBlock = currentBlock - BigInt(95000) > BigInt(0) ? currentBlock - BigInt(95000) : BigInt(0);
 
     const logs = await publicClient.getLogs({
       address: EAS_ADDRESS,

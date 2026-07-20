@@ -19,8 +19,21 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: "Dojang Diploma",
-  description: "On-chain verifiable diploma platform on GIWA Sepolia Testnet",
+  title: "Dojang Diploma — On-chain Verifiable Certificates on GIWA",
+  description: "Dojang Diploma issues academically rigorous and tamper-proof certificates using Ethereum Attestation Service (EAS) directly on GIWA Sepolia Testnet.",
+  openGraph: {
+    title: "Dojang Diploma — On-chain Verifiable Certificates on GIWA",
+    description: "Tamper-proof academic achievements minted as on-chain EAS attestations on GIWA Sepolia Testnet.",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Dojang Diploma",
+      }
+    ],
+  },
 };
 
 export default function RootLayout({
