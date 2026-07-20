@@ -1,0 +1,86 @@
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  .theme {
+    --font-heading: var(--font-sans);
+    --font-sans: var(--font-sans);
+  }
+  :root {
+    --background: #0f0f23;
+    --foreground: #f8fafc;
+    --card: #161630;
+    --card-foreground: #f8fafc;
+    --popover: #161630;
+    --popover-foreground: #f8fafc;
+    --primary: #8b5cf6;
+    --primary-foreground: #ffffff;
+    --secondary: #a78bfa;
+    --secondary-foreground: #0f0f23;
+    --muted: #27273b;
+    --muted-foreground: #94a3b8;
+    --accent: #fbbf24;
+    --accent-foreground: #0f0f23;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: #4c1d95;
+    --input: #27273b;
+    --ring: #8b5cf6;
+    --radius: 0.75rem;
+    --sidebar: #161630;
+    --sidebar-foreground: #f8fafc;
+    --sidebar-primary: #8b5cf6;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #27273b;
+    --sidebar-accent-foreground: #f8fafc;
+    --sidebar-border: #4c1d95;
+    --sidebar-ring: #8b5cf6;
+  }
+  .dark {
+    --background: #0f0f23;
+    --foreground: #f8fafc;
+    --card: #161630;
+    --card-foreground: #f8fafc;
+    --popover: #161630;
+    --popover-foreground: #f8fafc;
+    --primary: #8b5cf6;
+    --primary-foreground: #ffffff;
+    --secondary: #a78bfa;
+    --secondary-foreground: #0f0f23;
+    --muted: #27273b;
+    --muted-foreground: #94a3b8;
+    --accent: #fbbf24;
+    --accent-foreground: #0f0f23;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: #4c1d95;
+    --input: #27273b;
+    --ring: #8b5cf6;
+    --sidebar: #161630;
+    --sidebar-foreground: #f8fafc;
+    --sidebar-primary: #8b5cf6;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #27273b;
+    --sidebar-accent-foreground: #f8fafc;
+    --sidebar-border: #4c1d95;
+    --sidebar-ring: #8b5cf6;
+  }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
