@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "register-schema": "tsx scripts/register-schema.ts",
+    "test:lib": "tsx lib/__test__/eas.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
