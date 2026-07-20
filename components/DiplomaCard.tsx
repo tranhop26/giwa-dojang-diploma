@@ -4,8 +4,9 @@ import React from 'react';
 import Link from 'next/link';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Award, ArrowRight, ShieldAlert, Calendar } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import type { DiplomaData } from '@/lib/eas';
 
 interface DiplomaCardProps {
@@ -77,11 +78,12 @@ export default function DiplomaCard({
       </CardContent>
 
       <CardFooter className="pt-4 pb-5 px-6 border-t border-border/10 bg-card/10">
-        <Button asChild className="w-full h-9 gap-1.5" variant={isRevoked ? 'outline' : 'default'}>
-          <Link href={`/verify/${uid}`}>
-            View Certificate <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </Button>
+        <Link
+          href={`/verify/${uid}`}
+          className={cn(buttonVariants({ variant: isRevoked ? 'outline' : 'default' }), "w-full h-9 gap-1.5")}
+        >
+          View Certificate <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
       </CardFooter>
     </Card>
   );

@@ -4,13 +4,14 @@ import { Metadata } from 'next';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Award, ShieldAlert, ArrowLeft, ExternalLink, Calendar, User, UserCheck } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CopyButton from '@/components/CopyButton';
 import { getPublicClient, decodeDiplomaData } from '@/lib/eas';
 import { EAS_ADDRESS, SCHEMA_UID, EXPLORER_URL } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
 interface VerifyPageProps {
   params: {
@@ -120,11 +121,9 @@ export default async function VerifyPage({ params }: VerifyPageProps) {
               </p>
             </CardContent>
             <CardFooter className="flex justify-center">
-              <Button asChild className="gap-2">
-                <Link href="/">
-                  <ArrowLeft className="h-4 w-4" /> Back to Home
-                </Link>
-              </Button>
+              <Link href="/" className={cn(buttonVariants({ variant: "default" }), "gap-2")}>
+                <ArrowLeft className="h-4 w-4" /> Back to Home
+              </Link>
             </CardFooter>
           </Card>
         </main>
@@ -278,15 +277,14 @@ export default async function VerifyPage({ params }: VerifyPageProps) {
                 variant="outline"
                 className="w-full sm:w-auto h-10 px-4 text-foreground hover:bg-muted/80"
               />
-              <Button asChild className="w-full sm:w-auto h-10 gap-2">
-                <a
-                  href={`${EXPLORER_URL}/tx/${uid}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink className="h-4 w-4" /> View on GIWA Explorer
-                </a>
-              </Button>
+              <a
+                href={`${EXPLORER_URL}/tx/${uid}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(buttonVariants({ variant: "default" }), "w-full sm:w-auto h-10 gap-2")}
+              >
+                <ExternalLink className="h-4 w-4" /> View on GIWA Explorer
+              </a>
             </CardFooter>
           </Card>
         </div>

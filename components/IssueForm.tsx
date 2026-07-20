@@ -127,7 +127,7 @@ export default function IssueForm() {
       // Log event topic 3 = schema
       // Log data = uid (non-indexed)
       const attestedLog = receipt.logs.find(
-        (log) => log.address.toLowerCase() === EAS_ADDRESS.toLowerCase()
+        (log: any) => log.address.toLowerCase() === EAS_ADDRESS.toLowerCase()
       );
 
       let uid = '';
