@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useAccount, useSwitchChain, useChainId } from 'wagmi';
+import { useTranslations } from 'next-intl';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ export default function IssuePage() {
   const { isConnected } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
+  const t = useTranslations('Issue');
 
   const isCorrectNetwork = chainId === CHAIN_ID;
 
@@ -31,9 +33,9 @@ export default function IssuePage() {
           {!isConnected ? (
             <Card className="w-full max-w-md mx-auto border-border/40 bg-card/60 backdrop-blur-md shadow-2xl text-center p-6 mt-12">
               <CardHeader className="space-y-2">
-                <CardTitle className="font-display text-2xl">Connect Your Wallet</CardTitle>
+                <CardTitle className="font-display text-2xl">{t('connectTitle')}</CardTitle>
                 <CardDescription>
-                  You must connect an authorized issuer wallet to mint Dojang diplomas on-chain.
+                  {t('connectDesc')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center pt-4">
@@ -43,20 +45,20 @@ export default function IssuePage() {
           ) : !isCorrectNetwork ? (
             <Card className="w-full max-w-md mx-auto border-border/40 bg-card/60 backdrop-blur-md shadow-2xl text-center p-6 mt-12">
               <CardHeader className="space-y-2">
-                <CardTitle className="font-display text-2xl text-amber-500">Wrong Network</CardTitle>
+                <CardTitle className="font-display text-2xl text-amber-500">{t('networkTitle')}</CardTitle>
                 <CardDescription>
-                  Dojang Diploma operates on GIWA Sepolia Testnet (Chain ID: {CHAIN_ID}).
+                  {t('networkDesc')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pt-4">
                 <p className="text-sm text-muted-foreground">
-                  Please switch your active wallet network to proceed.
+                  {t('networkPrompt')}
                 </p>
                 <Button
                   onClick={() => switchChain({ chainId: CHAIN_ID })}
                   className="w-full h-11 bg-amber-500 hover:bg-amber-600 text-black font-semibold"
                 >
-                  Switch to GIWA Sepolia
+                  {t('networkBtn')}
                 </Button>
               </CardContent>
             </Card>
@@ -64,8 +66,12 @@ export default function IssuePage() {
             <Tabs defaultValue="single" className="w-full max-w-3xl mx-auto space-y-6">
               <div className="flex justify-center">
                 <TabsList className="grid grid-cols-2 w-[300px] border border-border/30 bg-muted/40 p-1 rounded-xl">
-                  <TabsTrigger value="single" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-semibold">Single Issue</TabsTrigger>
-                  <TabsTrigger value="batch" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-semibold">Batch Issue (CSV)</TabsTrigger>
+                  <TabsTrigger value="single" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-semibold">
+                    {t('tabSingle')}
+                  </TabsTrigger>
+                  <TabsTrigger value="batch" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-semibold">
+                    {t('tabBatch')}
+                  </TabsTrigger>
                 </TabsList>
               </div>
               

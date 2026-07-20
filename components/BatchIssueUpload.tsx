@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { useWriteContract } from 'wagmi';
+import { useTranslations } from 'next-intl';
 import Papa from 'papaparse';
 import { toast } from 'sonner';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -64,6 +65,7 @@ export default function BatchIssueUpload() {
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [issuedDiplomas, setIssuedDiplomas] = useState<IssuedDiploma[]>([]);
+  const t = useTranslations('Batch');
   const [txHash, setTxHash] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { writeContractAsync } = useWriteContract();
@@ -263,14 +265,14 @@ export default function BatchIssueUpload() {
           <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto mb-2">
             <CheckCircle2 className="h-6 w-6" />
           </div>
-          <CardTitle className="font-display text-2xl text-emerald-400">Batch Mint Successful!</CardTitle>
+          <CardTitle className="font-display text-2xl text-emerald-400">{t('successTitle')}</CardTitle>
           <CardDescription>
-            Successfully minted {issuedDiplomas.length} diploma attestations in a single transaction.
+            {t('successDesc', { count: issuedDiplomas.length })}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="bg-black/20 p-4 rounded-xl border border-border/20 text-xs flex justify-between items-center gap-4">
-            <span className="text-muted-foreground font-medium">Batch Transaction Hash:</span>
+            <span className="text-muted-foreground font-medium">{t('txHash')}</span>
             <div className="flex items-center gap-1.5 overflow-hidden">
               <span className="font-mono text-muted-foreground truncate max-w-[200px]">{txHash}</span>
               <a
@@ -279,7 +281,7 @@ export default function BatchIssueUpload() {
                 rel="noopener noreferrer"
                 className="text-primary hover:underline inline-flex items-center gap-1 shrink-0 ml-2"
               >
-                View Explorer <ExternalLink className="h-3 w-3" />
+                {t('viewExplorer')} <ExternalLink className="h-3 w-3" />
               </a>
             </div>
           </div>
@@ -288,9 +290,9 @@ export default function BatchIssueUpload() {
             <Table>
               <TableHeader className="bg-muted/40">
                 <TableRow>
-                  <TableHead className="text-xs">Student</TableHead>
-                  <TableHead className="text-xs">Course</TableHead>
-                  <TableHead className="text-xs text-right">Verification Link</TableHead>
+                  <TableHead className="text-xs">{t('tableStudent')}</TableHead>
+                  <TableHead className="text-xs">{t('tableCourse')}</TableHead>
+                  <TableHead className="text-xs text-right">{t('tableVerify')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -303,7 +305,7 @@ export default function BatchIssueUpload() {
                         href={`/verify/${dip.uid}`}
                         className={cn(buttonVariants({ variant: "outline", size: "xs" }), "h-7 text-xs gap-1")}
                       >
-                        Verify <ExternalLink className="h-3 w-3" />
+                        {t('btnVerify')} <ExternalLink className="h-3 w-3" />
                       </Link>
                     </TableCell>
                   </TableRow>
@@ -314,7 +316,7 @@ export default function BatchIssueUpload() {
         </CardContent>
         <CardFooter className="flex justify-center p-6 border-t border-border/20 bg-card/40">
           <Button onClick={resetUpload} variant="outline" className="gap-1.5 h-11 px-6">
-            <Upload className="h-4 w-4" /> Issue Another Batch
+            <Upload className="h-4 w-4" /> {t('btnAnother')}
           </Button>
         </CardFooter>
       </Card>
@@ -327,10 +329,10 @@ export default function BatchIssueUpload() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <CardTitle className="font-display text-2xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-              Batch Issue via CSV
+              {t('title')}
             </CardTitle>
             <CardDescription>
-              Upload a CSV file containing multiple students to mint attestations in one transaction.
+              {t('desc')}
             </CardDescription>
           </div>
           
@@ -339,7 +341,7 @@ export default function BatchIssueUpload() {
             download
             className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 gap-1.5 self-start sm:self-auto text-xs border-border/30 hover:bg-muted")}
           >
-            <Download className="h-3.5 w-3.5" /> Sample CSV
+            <Download className="h-3.5 w-3.5" /> {t('sampleCsv')}
           </a>
         </div>
       </CardHeader>
@@ -358,26 +360,26 @@ export default function BatchIssueUpload() {
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform duration-300">
               <Upload className="h-6 w-6" />
             </div>
-            <h3 className="font-semibold text-lg mb-1">Upload CSV File</h3>
+            <h3 className="font-semibold text-lg mb-1">{t('uploadTitle')}</h3>
             <p className="text-sm text-muted-foreground max-w-sm mb-2">
-              Select or drag and drop your `.csv` file. It must match the template schema exactly.
+              {t('uploadDesc')}
             </p>
-            <span className="text-xs text-primary/70 font-medium">Accepts UTF-8 encoded files</span>
+            <span className="text-xs text-primary/70 font-medium">{t('uploadEncoding')}</span>
           </div>
         ) : (
           <div className="space-y-6">
             {/* Action Bar */}
             <div className="flex items-center justify-between p-3.5 rounded-xl bg-card/45 border border-border/30 text-xs">
               <div className="flex items-center gap-2">
-                <span className="font-bold text-foreground">Total Rows: {rows.length}</span>
+                <span className="font-bold text-foreground">{t('totalRows')}: {rows.length}</span>
                 {hasInvalidRows && (
                   <span className="text-destructive font-semibold inline-flex items-center gap-1">
-                    <AlertCircle className="h-3.5 w-3.5" /> Fix errors to submit
+                    <AlertCircle className="h-3.5 w-3.5" /> {t('fixErrors')}
                   </span>
                 )}
               </div>
               <Button onClick={resetUpload} size="xs" variant="outline" className="h-7 text-xs">
-                Clear & Re-upload
+                {t('clearBtn')}
               </Button>
             </div>
 
@@ -428,7 +430,7 @@ export default function BatchIssueUpload() {
       {rows.length > 0 && (
         <CardFooter className="flex justify-between items-center p-6 border-t border-border/20 bg-card/40 gap-4">
           <span className="text-xs text-muted-foreground">
-            All attestations will use 'GIWA Academy' as the default issuer.
+            {t('footerNote')}
           </span>
           <Button
             onClick={onSubmit}
@@ -437,10 +439,10 @@ export default function BatchIssueUpload() {
           >
             {isSubmitting ? (
               <>
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Minting Batch...
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> {t('btnMinting')}
               </>
             ) : (
-              `Mint Batch (${rows.length})`
+              t('btnMint', { count: rows.length })
             )}
           </Button>
         </CardFooter>

@@ -3,10 +3,11 @@
 import React from 'react';
 import { useAccount } from 'wagmi';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Award, RefreshCw, AlertTriangle, Inbox } from 'lucide-react';
+import { RefreshCw, AlertTriangle, Inbox } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CopyButton from '@/components/CopyButton';
@@ -15,6 +16,7 @@ import { getAttestationsByRecipient } from '@/lib/queries';
 
 export default function MyDiplomasPage() {
   const { address, isConnected } = useAccount();
+  const t = useTranslations('MyDiplomas');
 
   const { data: diplomas, isLoading, isError, refetch } = useQuery({
     queryKey: ['my-diplomas', address],
@@ -34,9 +36,9 @@ export default function MyDiplomasPage() {
           {!isConnected ? (
             <Card className="w-full max-w-md mx-auto border-border/40 bg-card/60 backdrop-blur-md shadow-2xl text-center p-6 mt-12">
               <CardHeader className="space-y-2">
-                <CardTitle className="font-display text-2xl">Connect Your Wallet</CardTitle>
+                <CardTitle className="font-display text-2xl">{t('connectTitle')}</CardTitle>
                 <CardDescription>
-                  Connect your recipient wallet to view your issued on-chain Dojang diplomas.
+                  {t('connectDesc')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center pt-4">
@@ -48,7 +50,9 @@ export default function MyDiplomasPage() {
               {/* Profile/Address Banner */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 border border-border/30 rounded-2xl bg-card/40 backdrop-blur-md">
                 <div className="space-y-1">
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest block font-medium">Viewing Recipient Wallet</span>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest block font-medium">
+                    {t('viewingWallet')}
+                  </span>
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-sm text-violet-200">{address}</span>
                     <CopyButton text={address || ''} />
@@ -57,12 +61,12 @@ export default function MyDiplomasPage() {
                 
                 {isLoading && (
                   <Button disabled variant="outline" size="sm" className="h-9 gap-1.5 text-xs">
-                    <RefreshCw className="h-3.5 w-3.5 animate-spin" /> Syncing...
+                    <RefreshCw className="h-3.5 w-3.5 animate-spin" /> {t('syncing')}
                   </Button>
                 )}
                 {!isLoading && (
                   <Button onClick={() => refetch()} variant="outline" size="sm" className="h-9 gap-1.5 text-xs">
-                    <RefreshCw className="h-3.5 w-3.5" /> Refresh List
+                    <RefreshCw className="h-3.5 w-3.5" /> {t('refresh')}
                   </Button>
                 )}
               </div>
@@ -87,14 +91,14 @@ export default function MyDiplomasPage() {
                     <div className="w-12 h-12 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center mx-auto mb-2">
                       <AlertTriangle className="h-6 w-6" />
                     </div>
-                    <CardTitle className="font-display text-lg text-destructive">Sync Error</CardTitle>
+                    <CardTitle className="font-display text-lg text-destructive">{t('syncErrorTitle')}</CardTitle>
                     <CardDescription>
-                      Failed to fetch your attestations from the GIWA Sepolia network.
+                      {t('syncErrorDesc')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2">
                     <Button onClick={() => refetch()} className="w-full">
-                      Retry Sync
+                      {t('retry')}
                     </Button>
                   </CardContent>
                 </Card>
@@ -120,17 +124,17 @@ export default function MyDiplomasPage() {
                     <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-2">
                       <Inbox className="h-6 w-6" />
                     </div>
-                    <CardTitle className="font-display text-lg">No Diplomas Found</CardTitle>
+                    <CardTitle className="font-display text-lg">{t('emptyTitle')}</CardTitle>
                     <CardDescription>
-                      There are no Dojang diploma attestations registered for this wallet address.
+                      {t('emptyDesc')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4 pt-2 text-sm text-muted-foreground">
                     <p>
-                      Ask your bootcamp administrator or course instructor to issue an attestation directly to your wallet.
+                      {t('emptyPrompt')}
                     </p>
                     <div className="flex justify-center">
-                      <CopyButton text={address || ''} label="Copy My Wallet Address" variant="outline" className="h-10 px-4 text-foreground" />
+                      <CopyButton text={address || ''} label={t('copyMy')} variant="outline" className="h-10 px-4 text-foreground" />
                     </div>
                   </CardContent>
                 </Card>

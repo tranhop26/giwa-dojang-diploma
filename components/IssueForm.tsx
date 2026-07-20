@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -58,6 +59,7 @@ export default function IssueForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { writeContractAsync } = useWriteContract();
+  const t = useTranslations('Issue');
 
   const {
     register,
@@ -202,16 +204,16 @@ export default function IssueForm() {
     <Card className="w-full max-w-xl mx-auto border-border/40 bg-card/60 backdrop-blur-md shadow-2xl">
       <CardHeader>
         <CardTitle className="font-display text-2xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-          Issue New Diploma
+          {t('title')}
         </CardTitle>
         <CardDescription>
-          Attest a student's completion of a course on the GIWA network.
+          {t('desc')}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="recipient">Recipient Wallet Address</Label>
+            <Label htmlFor="recipient">{t('recipient')}</Label>
             <Input
               id="recipient"
               placeholder="0x..."
@@ -225,7 +227,7 @@ export default function IssueForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="studentName">Student Name</Label>
+            <Label htmlFor="studentName">{t('studentName')}</Label>
             <Input
               id="studentName"
               placeholder="Jane Doe"
@@ -239,7 +241,7 @@ export default function IssueForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="courseName">Course Name</Label>
+            <Label htmlFor="courseName">{t('courseName')}</Label>
             <Input
               id="courseName"
               placeholder="Fullstack Web3 Development"
@@ -253,7 +255,7 @@ export default function IssueForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="completionDate">Completion Date</Label>
+            <Label htmlFor="completionDate">{t('completionDate')}</Label>
             <Input
               id="completionDate"
               type="date"
@@ -267,7 +269,7 @@ export default function IssueForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="issuerName">Issuer Organization Name</Label>
+            <Label htmlFor="issuerName">{t('issuerName')}</Label>
             <Input
               id="issuerName"
               placeholder="GIWA Academy"
@@ -281,7 +283,7 @@ export default function IssueForm() {
           </div>
 
           <Button type="submit" className="w-full h-11" disabled={isSubmitting}>
-            {isSubmitting ? 'Issuing Diploma...' : 'Confirm & Issue Diploma'}
+            {isSubmitting ? t('btnSubmitting') : t('btnSubmit')}
           </Button>
         </form>
       </CardContent>
