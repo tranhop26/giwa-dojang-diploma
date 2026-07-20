@@ -4,10 +4,9 @@ import React from 'react';
 import Link from 'next/link';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Award, ArrowRight, ShieldAlert, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { DiplomaData } from '@/lib/eas';
 
 interface DiplomaCardProps {
   uid: string;
@@ -45,7 +44,7 @@ export default function DiplomaCard({
       <div className="absolute top-4 right-4">
         {isRevoked ? (
           <Badge variant="destructive" className="text-[10px] font-semibold uppercase tracking-wider py-0.5 px-2">
-            <ShieldAlert className="h-3 w-3 mr-1 inline" /> Revoked
+            <ShieldAlert className="h-3.5 w-3.5 mr-1 inline" /> Revoked
           </Badge>
         ) : (
           <Badge className="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 text-[10px] font-semibold uppercase tracking-wider py-0.5 px-2">

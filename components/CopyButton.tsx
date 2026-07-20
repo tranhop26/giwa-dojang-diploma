@@ -21,7 +21,7 @@ export default function CopyButton({ text, label, variant = 'ghost', className =
       setCopied(true);
       toast.success('Copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch {
       toast.error('Failed to copy text.');
     }
   };

@@ -1,11 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Award, ShieldAlert, ArrowLeft, ExternalLink, Calendar, UserCheck } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -96,7 +96,7 @@ export async function generateMetadata({ params }: VerifyPageProps): Promise<Met
 export default async function VerifyPage({ params }: VerifyPageProps) {
   const { uid, locale } = params;
   const attestation = await fetchAttestation(uid);
-  const t = useTranslations('Verify');
+  const t = await getTranslations('Verify');
 
   const isValidAttestation = 
     attestation && 

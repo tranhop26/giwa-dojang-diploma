@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { HelpCircle, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Header from '@/components/Header';
@@ -26,7 +26,7 @@ export default function NotFound() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              We couldn't find the resource you requested. You can return to the dashboard.
+              We couldn&apos;t find the resource you requested. You can return to the dashboard.
             </p>
           </CardContent>
           <CardFooter className="flex justify-center">
