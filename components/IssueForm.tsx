@@ -3,17 +3,18 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useWriteContract, useAccount } from 'wagmi';
+import { useWriteContract, useAccount, useReadContract } from 'wagmi';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
+import { AlertTriangle, Sparkles } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { encodeDiplomaData, type DiplomaData } from '@/lib/eas';
-import { EAS_ADDRESS, SCHEMA_UID, EXPLORER_URL } from '@/lib/constants';
+import { EAS_ADDRESS, SCHEMA_UID, EXPLORER_URL, SCHEMA_REGISTRY_ADDRESS, DIPLOMA_SCHEMA } from '@/lib/constants';
 
 const issueFormSchema = z.object({
   recipient: z.string().regex(/^0x[a-fA-F0-9]{40}$/, 'Must be a valid 40-character hex Ethereum address'),
@@ -55,12 +56,85 @@ const EAS_ABI = [
   },
 ] as const;
 
+const SCHEMA_REGISTRY_ABI = [
+  {
+    inputs: [{ name: 'uid', type: 'bytes32' }],
+    name: 'getSchema',
+    outputs: [
+      {
+        components: [
+          { name: 'uid', type: 'bytes32' },
+          { name: 'resolver', type: 'address' },
+          { name: 'revocable', type: 'bool' },
+          { name: 'schema', type: 'string' },
+        ],
+        name: '',
+        type: 'tuple',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { name: 'schema', type: 'string' },
+      { name: 'resolver', type: 'address' },
+      { name: 'revocable', type: 'bool' },
+    ],
+    name: 'register',
+    outputs: [{ name: '', type: 'bytes32' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+] as const;
+
 export default function IssueForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
   const { address: connectedAddress } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const t = useTranslations('Issue');
+
+  // Check if Schema is registered on-chain
+  const { data: schemaData, refetch: refetchSchema } = useReadContract({
+    address: SCHEMA_REGISTRY_ADDRESS,
+    abi: SCHEMA_REGISTRY_ABI,
+    functionName: 'getSchema',
+    args: [SCHEMA_UID],
+  });
+
+  const isSchemaRegistered = Boolean(
+    schemaData &&
+    schemaData.uid &&
+    schemaData.uid !== '0x0000000000000000000000000000000000000000000000000000000000000000'
+  );
+
+  const handleRegisterSchema = async (): Promise<boolean> => {
+    setIsRegistering(true);
+    const toastId = toast.loading('Registering diploma schema on GIWA Sepolia...');
+    try {
+      const hash = await writeContractAsync({
+        address: SCHEMA_REGISTRY_ADDRESS,
+        abi: SCHEMA_REGISTRY_ABI,
+        functionName: 'register',
+        account: connectedAddress,
+        args: [DIPLOMA_SCHEMA, '0x0000000000000000000000000000000000000000', true],
+      });
+
+      toast.loading('Schema transaction submitted. Waiting for confirmation...', { id: toastId });
+      await publicWaitForTx(hash);
+      toast.success('✅ Schema registered successfully on GIWA Sepolia!', { id: toastId });
+      refetchSchema();
+      return true;
+    } catch (err: any) {
+      console.error('Register schema failed:', err);
+      toast.error('❌ Failed to register schema: ' + (err.shortMessage || err.message), { id: toastId });
+      return false;
+    } finally {
+      setIsRegistering(false);
+    }
+  };
 
   const {
     register,
@@ -82,6 +156,16 @@ export default function IssueForm() {
 
   const onSubmit = async (values: IssueFormValues) => {
     setIsSubmitting(true);
+
+    // 0. Ensure schema is registered first
+    if (!isSchemaRegistered) {
+      const ok = await handleRegisterSchema();
+      if (!ok) {
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     const toastId = toast.loading('Encoding data and preparing transaction...');
 
     try {
@@ -125,28 +209,17 @@ export default function IssueForm() {
       // 4. Wait for receipt
       const receipt = await publicWaitForTx(hash);
       
-      // 5. Extract UID from Attested event logs
-      // Attested event logs topic: Registered or Attested?
-      // Attested(address indexed recipient, address indexed attester, bytes32 uid, bytes32 indexed schema)
-      // Log event topic 0 = Attested signature
-      // Log event topic 1 = recipient
-      // Log event topic 2 = attester
-      // Log event topic 3 = schema
-      // Log data = uid (non-indexed)
       const attestedLog = receipt.logs.find(
         (log: any) => log.address.toLowerCase() === EAS_ADDRESS.toLowerCase()
       );
 
       let uid = '';
       if (attestedLog) {
-        // uid is bytes32 parameter in data (usually 32 bytes hex)
         uid = attestedLog.data;
       }
 
       if (!uid || uid === '0x') {
-        // Fallback: if we can't extract UID, use transaction hash or scan log topics
         console.warn('Could not extract UID from logs directly, searching topics...');
-        // Sometimes uid is returned in topics or log.data contains it
         uid = receipt.logs[0]?.data || '';
       }
 
@@ -185,7 +258,6 @@ export default function IssueForm() {
 
   // Helper to wait for receipt
   const publicWaitForTx = async (hash: `0x${string}`) => {
-    // We can use native fetch or a quick poll, but since we are using wagmi we can use publicClient or wait
     const response = await fetch(`${process.env.NEXT_PUBLIC_RPC_URL || 'https://sepolia-rpc.giwa.io'}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -200,7 +272,6 @@ export default function IssueForm() {
     if (result.result) {
       return result.result;
     }
-    // Poll every 1s
     await new Promise((resolve) => setTimeout(resolve, 1000));
     return publicWaitForTx(hash);
   };
@@ -216,6 +287,32 @@ export default function IssueForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {!isSchemaRegistered && (
+          <div className="p-4 mb-6 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs space-y-2">
+            <div className="flex items-center gap-2 font-bold text-amber-400 text-sm">
+              <AlertTriangle className="h-4 w-4" /> Action Required: Register Schema On-Chain
+            </div>
+            <p>
+              The EAS Diploma Schema must be registered on GIWA Sepolia before issuing attestations. Click below to register it once (gas fee ~0.00005 ETH).
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleRegisterSchema}
+              disabled={isRegistering}
+              className="bg-amber-500 hover:bg-amber-600 text-black font-semibold h-8 text-xs cursor-pointer shadow-md"
+            >
+              {isRegistering ? (
+                'Registering Schema...'
+              ) : (
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5" /> 1-Click Register Schema On-Chain
+                </span>
+              )}
+            </Button>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
             <div className="flex items-center justify-between">

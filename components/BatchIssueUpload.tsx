@@ -1,16 +1,16 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { useWriteContract, useAccount } from 'wagmi';
+import { useWriteContract, useAccount, useReadContract } from 'wagmi';
 import { useTranslations } from 'next-intl';
 import Papa from 'papaparse';
 import { toast } from 'sonner';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { AlertCircle, Upload, CheckCircle2, Download, ExternalLink, RefreshCw } from 'lucide-react';
+import { AlertCircle, Upload, CheckCircle2, Download, ExternalLink, RefreshCw, AlertTriangle, Sparkles } from 'lucide-react';
 import { encodeDiplomaData, type DiplomaData } from '@/lib/eas';
-import { EAS_ADDRESS, SCHEMA_UID, EXPLORER_URL } from '@/lib/constants';
+import { EAS_ADDRESS, SCHEMA_UID, EXPLORER_URL, SCHEMA_REGISTRY_ADDRESS, DIPLOMA_SCHEMA } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
@@ -61,15 +61,88 @@ const EAS_ABI = [
   },
 ] as const;
 
+const SCHEMA_REGISTRY_ABI = [
+  {
+    inputs: [{ name: 'uid', type: 'bytes32' }],
+    name: 'getSchema',
+    outputs: [
+      {
+        components: [
+          { name: 'uid', type: 'bytes32' },
+          { name: 'resolver', type: 'address' },
+          { name: 'revocable', type: 'bool' },
+          { name: 'schema', type: 'string' },
+        ],
+        name: '',
+        type: 'tuple',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { name: 'schema', type: 'string' },
+      { name: 'resolver', type: 'address' },
+      { name: 'revocable', type: 'bool' },
+    ],
+    name: 'register',
+    outputs: [{ name: '', type: 'bytes32' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+] as const;
+
 export default function BatchIssueUpload() {
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
   const [issuedDiplomas, setIssuedDiplomas] = useState<IssuedDiploma[]>([]);
   const t = useTranslations('Batch');
   const [txHash, setTxHash] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { address: connectedAddress } = useAccount();
   const { writeContractAsync } = useWriteContract();
+
+  // Check schema status
+  const { data: schemaData, refetch: refetchSchema } = useReadContract({
+    address: SCHEMA_REGISTRY_ADDRESS,
+    abi: SCHEMA_REGISTRY_ABI,
+    functionName: 'getSchema',
+    args: [SCHEMA_UID],
+  });
+
+  const isSchemaRegistered = Boolean(
+    schemaData &&
+    schemaData.uid &&
+    schemaData.uid !== '0x0000000000000000000000000000000000000000000000000000000000000000'
+  );
+
+  const handleRegisterSchema = async (): Promise<boolean> => {
+    setIsRegistering(true);
+    const toastId = toast.loading('Registering diploma schema on GIWA Sepolia...');
+    try {
+      const hash = await writeContractAsync({
+        address: SCHEMA_REGISTRY_ADDRESS,
+        abi: SCHEMA_REGISTRY_ABI,
+        functionName: 'register',
+        account: connectedAddress,
+        args: [DIPLOMA_SCHEMA, '0x0000000000000000000000000000000000000000', true],
+      });
+
+      toast.loading('Schema transaction submitted. Waiting for confirmation...', { id: toastId });
+      await publicWaitForTx(hash);
+      toast.success('✅ Schema registered successfully on GIWA Sepolia!', { id: toastId });
+      refetchSchema();
+      return true;
+    } catch (err: any) {
+      console.error('Register schema failed:', err);
+      toast.error('❌ Failed to register schema: ' + (err.shortMessage || err.message), { id: toastId });
+      return false;
+    } finally {
+      setIsRegistering(false);
+    }
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -141,6 +214,15 @@ export default function BatchIssueUpload() {
     if (rows.length === 0 || rows.some(r => !r.isValid)) return;
 
     setIsSubmitting(true);
+
+    if (!isSchemaRegistered) {
+      const ok = await handleRegisterSchema();
+      if (!ok) {
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     const toastId = toast.loading(`Preparing batch of ${rows.length} diplomas...`);
 
     try {
@@ -349,6 +431,32 @@ export default function BatchIssueUpload() {
       </CardHeader>
       
       <CardContent className="space-y-6">
+        {!isSchemaRegistered && (
+          <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs space-y-2">
+            <div className="flex items-center gap-2 font-bold text-amber-400 text-sm">
+              <AlertTriangle className="h-4 w-4" /> Action Required: Register Schema On-Chain
+            </div>
+            <p>
+              The EAS Diploma Schema must be registered on GIWA Sepolia before issuing attestations. Click below to register it once (gas fee ~0.00005 ETH).
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleRegisterSchema}
+              disabled={isRegistering}
+              className="bg-amber-500 hover:bg-amber-600 text-black font-semibold h-8 text-xs cursor-pointer shadow-md"
+            >
+              {isRegistering ? (
+                'Registering Schema...'
+              ) : (
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5" /> 1-Click Register Schema On-Chain
+                </span>
+              )}
+            </Button>
+          </div>
+        )}
+
         {/* Upload Container */}
         {rows.length === 0 ? (
           <div className="border-2 border-dashed border-border/40 hover:border-primary/40 rounded-2xl p-12 text-center transition-all bg-card/30 flex flex-col items-center justify-center group relative">
