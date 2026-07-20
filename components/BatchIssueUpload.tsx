@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { useWriteContract } from 'wagmi';
+import { useWriteContract, useAccount } from 'wagmi';
 import { useTranslations } from 'next-intl';
 import Papa from 'papaparse';
 import { toast } from 'sonner';
@@ -68,6 +68,7 @@ export default function BatchIssueUpload() {
   const t = useTranslations('Batch');
   const [txHash, setTxHash] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { address: connectedAddress } = useAccount();
   const { writeContractAsync } = useWriteContract();
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,6 +171,7 @@ export default function BatchIssueUpload() {
         address: EAS_ADDRESS,
         abi: EAS_ABI,
         functionName: 'multiAttest',
+        account: connectedAddress,
         args: [
           [
             {

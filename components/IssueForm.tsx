@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useWriteContract } from 'wagmi';
+import { useWriteContract, useAccount } from 'wagmi';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -58,12 +58,14 @@ const EAS_ABI = [
 export default function IssueForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { address: connectedAddress } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const t = useTranslations('Issue');
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<IssueFormValues>({
     resolver: zodResolver(issueFormSchema),
@@ -102,6 +104,7 @@ export default function IssueForm() {
         address: EAS_ADDRESS,
         abi: EAS_ABI,
         functionName: 'attest',
+        account: connectedAddress,
         args: [
           {
             schema: SCHEMA_UID,
@@ -215,7 +218,18 @@ export default function IssueForm() {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="recipient">{t('recipient')}</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="recipient">{t('recipient')}</Label>
+              {connectedAddress && (
+                <button
+                  type="button"
+                  onClick={() => setValue('recipient', connectedAddress)}
+                  className="text-[11px] text-primary hover:underline font-medium cursor-pointer"
+                >
+                  Use My Connected Address ({connectedAddress.slice(0, 6)}...{connectedAddress.slice(-4)})
+                </button>
+              )}
+            </div>
             <Input
               id="recipient"
               placeholder="0x..."
