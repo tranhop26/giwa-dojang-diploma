@@ -10,7 +10,7 @@
 ---
 
 ## Deployed Live Demo
-🔗 **Vercel Deployment**: [https://dojang-diploma.vercel.app](https://dojang-diploma.vercel.app)
+🔗 **Vercel Deployment**: [will fill after deploy]
 
 ---
 
