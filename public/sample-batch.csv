@@ -1,0 +1,4 @@
+recipient,studentName,courseName,completionDate
+0x0000000000000000000000000000000000000000,John Doe,Web3 Fundamentals,2026-05-10
+0x742d35Cc6634C0532925a3b844Bc454e4438f44e,Alice Smith,Solidity Smart Contracts,2026-06-15
+0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1,Bob Johnson,Ethereum Attestation Service (EAS),2026-07-20

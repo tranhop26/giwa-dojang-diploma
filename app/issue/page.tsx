@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import IssueForm from '@/components/IssueForm';
+import BatchIssueUpload from '@/components/BatchIssueUpload';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { CHAIN_ID } from '@/lib/constants';
 
 export default function IssuePage() {
@@ -59,7 +61,22 @@ export default function IssuePage() {
               </CardContent>
             </Card>
           ) : (
-            <IssueForm />
+            <Tabs defaultValue="single" className="w-full max-w-3xl mx-auto space-y-6">
+              <div className="flex justify-center">
+                <TabsList className="grid grid-cols-2 w-[300px] border border-border/30 bg-muted/40 p-1 rounded-xl">
+                  <TabsTrigger value="single" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-semibold">Single Issue</TabsTrigger>
+                  <TabsTrigger value="batch" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-semibold">Batch Issue (CSV)</TabsTrigger>
+                </TabsList>
+              </div>
+              
+              <TabsContent value="single" className="focus-visible:outline-none">
+                <IssueForm />
+              </TabsContent>
+              
+              <TabsContent value="batch" className="focus-visible:outline-none">
+                <BatchIssueUpload />
+              </TabsContent>
+            </Tabs>
           )}
         </div>
       </main>
